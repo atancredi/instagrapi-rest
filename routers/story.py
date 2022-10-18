@@ -4,7 +4,7 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, Form
 from fastapi.responses import FileResponse
 from instagrapi import Client
-from instagrapi.types import Story
+from instagrapi.types import Story, UserShort
 
 from dependencies import ClientStorage, get_clients
 
@@ -15,6 +15,16 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+# get user story viewer - new implementation
+@router.post("/user_story_viewer", response_model=List[UserShort])
+async def story_viewers(sessionid: str = Form(...), 
+                            story_pk: str = Form(...), 
+                            amount: Optional[int] = Form(None), 
+                            clients: ClientStorage = Depends(get_clients)) -> List[Story]:
+    """Get list of story viewers
+    """
+    cl = clients.get(sessionid)
+    return cl.story_viewers(story_pk, amount = 20)
 
 @router.post("/user_stories", response_model=List[Story])
 async def story_user_stories(sessionid: str = Form(...), 
