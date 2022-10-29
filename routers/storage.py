@@ -7,7 +7,7 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, Form
 from fastapi.responses import FileResponse
 from instagrapi import Client
-from instagrapi.types import Story, UserShort, StoryAutomation
+from instagrapi.types import Story, UserShort
 
 from dependencies import ClientStorage, get_clients
 from pydantic import BaseModel
@@ -20,11 +20,14 @@ router = APIRouter(
 )
 
 class MysqlConfig:
+    host = env.get("MYSQL_HOST")
     user = env.get("MYSQL_USER")
     password = env.get("MYSQL_PASSWORD")
     db = env.get("MYSQL_DATABASE")
 
 ############## UPDATE USER FOLLOWERS
+
+
 # ritorna il risultato della scansione con followers presi e persi
 @router.post("/update_user_followers", response_model=int)
 async def update_user_followers(user_id: int = Form(...),
@@ -33,7 +36,7 @@ async def update_user_followers(user_id: int = Form(...),
     """
     conf = MysqlConfig()
     msc.connect(
-      host="localhost",
+      host=conf.host,
       user=conf.user,
       password=conf.password,
       db=conf.db
